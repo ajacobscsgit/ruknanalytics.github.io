@@ -6,7 +6,7 @@
   <title>Contact | RUKN Analytics</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="no-scroll">
+<body>
 
 <div class="page-wrapper">
   <div class="header-shell">
@@ -239,6 +239,12 @@ window.addEventListener("load", () => {
     addService(displayName);
   }
   populateServiceOptions();
+
+  // Scroll to the end of the footer on page load
+  const footer = document.querySelector('footer.site-footer');
+  if (footer) {
+    footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }
 });
 
 form.addEventListener("submit", function(e) {
