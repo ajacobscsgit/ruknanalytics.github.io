@@ -45,23 +45,6 @@
     <div class="contact-form-card">
       <h2>Send a message</h2>
 
-      <!-- Selected Services Display -->
-      <div id="selected-services" class="selected-services" style="display: none;">
-        <h3 style="margin-bottom: 10px;">Requesting services for:</h3>
-        <div id="services-list" style="margin-bottom: 15px;"></div>
-        <button type="button" id="add-service-btn" class="btn btn-secondary" style="margin-bottom: 20px;">+ Add Another Service</button>
-      </div>
-
-      <!-- Service Selection Modal -->
-      <div id="service-modal" class="service-modal" style="display: none;">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-          <h3>Select a Service</h3>
-          <div id="service-options"></div>
-          <button type="button" class="btn btn-secondary" onclick="document.getElementById('service-modal').style.display = 'none'">Close</button>
-        </div>
-      </div>
-
       <form class="contact-form" id="contact-form" novalidate>
 
         <div class="form-row">
@@ -76,6 +59,12 @@
 
         <label class="form-field">
           <input type="text" name="company" placeholder="Company (optional)" />
+        </label>
+
+        <label class="form-field">
+          <select name="service" id="service-select">
+            <option value="">Select a service (optional)</option>
+          </select>
         </label>
 
         <label class="form-field">
@@ -131,79 +120,7 @@ const nameInput = form.querySelector('input[name="name"]');
 const emailInput = form.querySelector('input[name="email"]');
 const messageInput = document.getElementById("messageBox");
 const counter = document.querySelector(".char-counter");
-const selectedServicesDiv = document.getElementById("selected-services");
-const servicesList = document.getElementById("services-list");
-const addServiceBtn = document.getElementById("add-service-btn");
-const serviceModal = document.getElementById("service-modal");
-const serviceOptions = document.getElementById("service-options");
-
-let selectedServices = [];
-
-function getQueryParam(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
-}
-
-function formatMessageWithServices() {
-  let messageText = "";
-  if (selectedServices.length > 0) {
-    selectedServices.forEach(service => {
-      messageText += `**${service}**\n`;
-    });
-    messageText += "\n";
-  }
-  return messageText;
-}
-
-function updateServicesList() {
-  servicesList.innerHTML = "";
-  selectedServices.forEach((service, index) => {
-    const tag = document.createElement("div");
-    tag.style.cssText = "display: inline-block; background: #f0f0f0; padding: 8px 12px; margin-right: 8px; margin-bottom: 8px; border-radius: 4px; font-weight: bold;";
-    tag.innerHTML = `${service} <button type="button" onclick="removeService(${index})" style="background: none; border: none; margin-left: 8px; cursor: pointer; font-weight: bold;">×</button>`;
-    servicesList.appendChild(tag);
-  });
-  
-  if (selectedServices.length > 0) {
-    selectedServicesDiv.style.display = "block";
-    updateMessageWithServices();
-  } else {
-    selectedServicesDiv.style.display = "none";
-  }
-}
-
-function addService(service) {
-  if (!selectedServices.includes(service)) {
-    selectedServices.push(service);
-  }
-  updateServicesList();
-  serviceModal.style.display = "none";
-}
-
-window.removeService = function(index) {
-  selectedServices.splice(index, 1);
-  updateServicesList();
-};
-
-function populateServiceOptions() {
-  serviceOptions.innerHTML = "";
-  services.forEach(service => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "btn btn-primary";
-    btn.style.cssText = "display: block; width: 100%; text-align: left; margin-bottom: 10px; padding: 12px;";
-    btn.textContent = service.name;
-    btn.onclick = () => addService(service.name);
-    serviceOptions.appendChild(btn);
-  });
-}
-
-function updateMessageWithServices() {
-  const currentMessage = messageInput.value.split("\n").filter(line => !line.startsWith("**") && line.trim() !== "").join("\n");
-  const servicePrefix = formatMessageWithServices();
-  messageInput.value = (servicePrefix + currentMessage).trim();
-  counter.textContent = messageInput.value.length + " / 500";
-}
+const serviceSelect = document.getElementById("service-select");
 
 function showError(input, message) {
   input.classList.add("input-error");
@@ -218,33 +135,16 @@ function clearErrors() {
   document.querySelectorAll(".input-error").forEach(el => el.classList.remove("input-error"));
 }
 
-addServiceBtn.addEventListener("click", () => {
-  populateServiceOptions();
-  serviceModal.style.display = "flex";
-});
-
-document.querySelector(".modal-overlay").addEventListener("click", () => {
-  serviceModal.style.display = "none";
-});
-
 messageInput.addEventListener("input", function() {
   counter.textContent = messageInput.value.length + " / 500";
 });
 
-// Check for service query parameter on page load
-window.addEventListener("load", () => {
-  const serviceParam = getQueryParam("service");
-  if (serviceParam) {
-    const displayName = services.find(s => s.value === serviceParam)?.name || serviceParam;
-    addService(displayName);
-  }
-  populateServiceOptions();
-
-  // Scroll to the end of the footer on page load
-  const footer = document.querySelector('footer.site-footer');
-  if (footer) {
-    footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }
+// Populate service select options
+services.forEach(service => {
+  const option = document.createElement("option");
+  option.value = service.value;
+  option.textContent = service.name;
+  serviceSelect.appendChild(option);
 });
 
 form.addEventListener("submit", function(e) {
@@ -274,8 +174,14 @@ form.addEventListener("submit", function(e) {
     name: nameInput.value,
     email: emailInput.value,
     company: document.querySelector('input[name="company"]').value,
-    message: messageInput.value
+    message: messageInput.value,
+    service: serviceSelect.value
   };
+
+  // Prepend service to message if selected
+  if (serviceSelect.value) {
+    formData.message = `Service: ${serviceSelect.options[serviceSelect.selectedIndex].text}\n\n${formData.message}`;
+  }
 
   // Disable button to prevent double submit
   const button = form.querySelector("button");
@@ -311,7 +217,8 @@ form.addEventListener("submit", function(e) {
       name: nameInput.value,
       email: emailInput.value,
       company: document.querySelector('input[name="company"]').value,
-      message: messageInput.value
+      message: formData.message,
+      service: serviceSelect.value
     }).toString()
   });
 });

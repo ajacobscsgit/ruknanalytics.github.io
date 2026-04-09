@@ -563,7 +563,8 @@ body {
 }
 
 .form-field input,
-.form-field textarea {
+.form-field textarea,
+.form-field select {
   width: 100%;
   padding: 12px 14px;
   border-radius: 8px;
@@ -575,7 +576,8 @@ body {
 }
 
 .form-field input:focus,
-.form-field textarea:focus {
+.form-field textarea:focus,
+.form-field select:focus {
   outline: none;
   border-color: #11B886;
   background: #0D1312;
@@ -587,6 +589,18 @@ body {
   font-size: 0.98rem;
   line-height: 1.5;
   resize: none;
+}
+
+.form-field select {
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #F3F7F5;
+}
+
+.form-field select option {
+  color: #F3F7F5;
+  background: #101918;
 }
 
 .form-field input::placeholder,
@@ -805,7 +819,8 @@ body.no-scroll .contact-form h2 {
 }
 
 body.no-scroll .form-field input,
-body.no-scroll .form-field textarea {
+body.no-scroll .form-field textarea,
+body.no-scroll .form-field select {
   padding: 8px 10px;
   font-size: 0.95rem;
 }
