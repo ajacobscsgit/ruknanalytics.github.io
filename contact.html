@@ -178,11 +178,6 @@ form.addEventListener("submit", function(e) {
     service: serviceSelect.value
   };
 
-  // Prepend service to message if selected
-  if (serviceSelect.value) {
-    formData.message = `Service: ${serviceSelect.options[serviceSelect.selectedIndex].text}\n\n${formData.message}`;
-  }
-
   // Disable button to prevent double submit
   const button = form.querySelector("button");
   button.disabled = true;
