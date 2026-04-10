@@ -20,6 +20,7 @@
         <a href="about.html" class="nav-link">About</a>
         <a href="case-studies.html" class="nav-link">Case Studies</a>
       </nav>
+      <a href="tel:4404689087" class="nav-phone">(440) 468-9087</a>
       <a href="contact.html" class="btn btn-primary nav-cta active">Contact</a>
     </header>
   </div>
@@ -108,16 +109,25 @@
   </div>
 </section>
 
+<section class="section section-phone">
+  <div class="container narrow">
+    <p class="phone-callout">Prefer to speak directly? Call or text us: <a href="tel:4404689087" class="phone-link">(440) 468-9087</a></p>
+  </div>
+</section>
+
 <script>
-const services = [
-  { name: "KPI Architecture & Performance Diagnostic", value: "KPI Audit & Performance Diagnostic" },
-  { name: "Executive Dashboard & Reporting Systems", value: "Executive Dashboard Design" },
-  { name: "Automation & Data Workflow Optimization", value: "Performance Automation & Monitoring" }
+const serviceOptions = [
+  { key: "data-cleanup", label: "Data Cleanup & Organization" },
+  { key: "kpi-audit", label: "KPI Audit & Performance Diagnostic" },
+  { key: "dashboard-setup", label: "Dashboard Setup" },
+  { key: "automation-reporting", label: "Automation & Reporting System" },
+  { key: "monthly-support", label: "Monthly Monitoring & Support" }
 ];
 
 const form = document.getElementById("contact-form");
 const nameInput = form.querySelector('input[name="name"]');
 const emailInput = form.querySelector('input[name="email"]');
+const companyInput = form.querySelector('input[name="company"]');
 const messageInput = document.getElementById("messageBox");
 const counter = document.querySelector(".char-counter");
 const serviceSelect = document.getElementById("service-select");
@@ -135,17 +145,37 @@ function clearErrors() {
   document.querySelectorAll(".input-error").forEach(el => el.classList.remove("input-error"));
 }
 
+function populateServiceOptions() {
+  serviceOptions.forEach(service => {
+    const option = document.createElement("option");
+    option.value = service.label;
+    option.textContent = service.label;
+    serviceSelect.appendChild(option);
+  });
+}
+
+function applyServiceQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const selected = params.get("service");
+  if (!selected) return;
+
+  const match = serviceOptions.find(option => option.key === selected);
+  if (!match) return;
+
+  serviceSelect.value = match.label;
+
+  if (!messageInput.value.trim()) {
+    messageInput.value = `Interested in ${match.label}. `;
+    counter.textContent = messageInput.value.length + " / 500";
+  }
+}
+
 messageInput.addEventListener("input", function() {
   counter.textContent = messageInput.value.length + " / 500";
 });
 
-// Populate service select options
-services.forEach(service => {
-  const option = document.createElement("option");
-  option.value = service.value;
-  option.textContent = service.name;
-  serviceSelect.appendChild(option);
-});
+populateServiceOptions();
+applyServiceQuery();
 
 form.addEventListener("submit", function(e) {
   e.preventDefault();
@@ -173,23 +203,19 @@ form.addEventListener("submit", function(e) {
   const formData = {
     name: nameInput.value,
     email: emailInput.value,
-    company: document.querySelector('input[name="company"]').value,
+    company: companyInput.value,
     message: messageInput.value,
     service: serviceSelect.value
   };
 
-  // Disable button to prevent double submit
   const button = form.querySelector("button");
   button.disabled = true;
   button.innerText = "Sending...";
 
-  // 🔥 Fade out form smoothly
   form.style.transition = "opacity 0.2s ease";
   form.style.opacity = "0";
 
   setTimeout(() => {
-
-    // Replace with success message
     form.innerHTML = `
       <div class="form-success">
         <h3>Thank you.</h3>
@@ -198,10 +224,8 @@ form.addEventListener("submit", function(e) {
     `;
 
     form.style.opacity = "1";
-
   }, 200);
 
-  // 🚀 Send request in background (no waiting)
   fetch("https://script.google.com/macros/s/AKfycbzjC6l9mcuq9nB9FUQ62MBB-DM_0fIRmeiE0KO1cB2PFB1NVId-2AJ5-GCT1r9W5GSc/exec", {
     method: "POST",
     mode: "no-cors",
@@ -209,11 +233,11 @@ form.addEventListener("submit", function(e) {
       "Content-Type": "application/x-www-form-urlencoded"
     },
     body: new URLSearchParams({
-      name: nameInput.value,
-      email: emailInput.value,
-      company: document.querySelector('input[name="company"]').value,
+      name: formData.name,
+      email: formData.email,
+      company: formData.company,
       message: formData.message,
-      service: serviceSelect.value
+      service: formData.service
     }).toString()
   });
 });
@@ -252,7 +276,9 @@ form.addEventListener("submit", function(e) {
       <!-- Contact -->
       <div class="footer-section">
         <h4>Contact</h4>
-        <p>Email: contact@ruknanalytics.com</p>
+        <p><strong>RUKN Analytics</strong></p>
+        <p><a href="mailto:contact@ruknanalytics.com">contact@ruknanalytics.com</a></p>
+        <p><a href="tel:4404689087">440-468-9087</a></p>
         <p>Location: United States</p>
       </div>
 
