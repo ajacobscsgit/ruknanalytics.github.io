@@ -2637,3 +2637,12 @@ body.no-scroll .site-footer {
 .credentials-row span:last-child::after {
   content: "";
 }
+@media (max-width: 768px) {
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
